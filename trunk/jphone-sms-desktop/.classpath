@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/red/Java/javalib/sqlitejdbc-v054/sqlitejdbc-v054.jar"/>
+	<classpathentry kind="lib" path="/home/red/Java/javalib/trilead-ssh2-build213/trilead-ssh2-build213.jar" sourcepath="/home/red/Java/javalib/trilead-ssh2-build213/src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
