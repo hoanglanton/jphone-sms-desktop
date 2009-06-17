@@ -3,8 +3,8 @@ package it.flaminiandrea.jphonesms.gui;
 import it.flaminiandrea.jphonesms.domain.Data;
 import it.flaminiandrea.jphonesms.domain.Entry;
 import it.flaminiandrea.jphonesms.export.Exporter;
-import it.flaminiandrea.jphonesms.export.HtmlExporter;
-import it.flaminiandrea.jphonesms.export.TxtExporter;
+import it.flaminiandrea.jphonesms.export.html.HtmlExporter;
+import it.flaminiandrea.jphonesms.export.txt.TxtExporter;
 import it.flaminiandrea.jphonesms.gui.listeners.ExportActionListener;
 import it.flaminiandrea.jphonesms.gui.listeners.LoadSmsActionListener;
 
@@ -149,7 +149,7 @@ public class MainWindow extends JPanel implements ActionListener {
 		JFrame frame = new JFrame();
 		final MainWindow ex = new MainWindow();
 		frame.getContentPane().add(ex);
-		frame.setTitle("jPhone SMS Desktop v0.6b");
+		frame.setTitle("jPhone SMS Desktop v0.9");
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
