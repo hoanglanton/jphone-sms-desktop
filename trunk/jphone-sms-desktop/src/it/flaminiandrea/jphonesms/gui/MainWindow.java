@@ -6,7 +6,8 @@ import it.flaminiandrea.jphonesms.export.Exporter;
 import it.flaminiandrea.jphonesms.export.html.HtmlExporter;
 import it.flaminiandrea.jphonesms.export.txt.TxtExporter;
 import it.flaminiandrea.jphonesms.gui.listeners.ExportActionListener;
-import it.flaminiandrea.jphonesms.gui.listeners.LoadSmsActionListener;
+import it.flaminiandrea.jphonesms.gui.listeners.LoadSmsFromBackupActionListener;
+import it.flaminiandrea.jphonesms.gui.listeners.LoadSmsViaSftpActionListener;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -38,7 +39,7 @@ public class MainWindow extends JPanel implements ActionListener {
 
 	// COMPONENTI GRAFICI
 	private JToolBar tools;
-	private JButton loadSMS, exportToTxt, exportToHtml, credits;
+	private JButton loadSmsFromBackup, loadSmsViaSFTP, exportToTxt, exportToHtml, credits;
 	private JPanel formPanel;
 	private ShortMessagesTable smsTable;
 	private JLabel userLabel, passwordLabel, ipAddressLabel;
@@ -93,12 +94,18 @@ public class MainWindow extends JPanel implements ActionListener {
 		ExportActionListener htmlExportActionListener = new ExportActionListener("Save in", this, htmlExporter);
 		exportToHtml.addActionListener(htmlExportActionListener);
 
-		this.loadSMS = new JButton("Load SMS from iPhone");
-		loadSMS.setFocusPainted(false);
-		LoadSmsActionListener loadSmsListener = createLoadSmsActionListenert();
-		loadSMS.addActionListener(loadSmsListener);
-
-		tools.add(loadSMS);
+		this.loadSmsViaSFTP = new JButton("Load SMS using SFTP");
+		loadSmsViaSFTP.setFocusPainted(false);
+		LoadSmsViaSftpActionListener loadSmsViaSftpListener = createLoadSmsActionListener();
+		loadSmsViaSFTP.addActionListener(loadSmsViaSftpListener);
+		
+		this.loadSmsFromBackup = new JButton("Load SMS from Backup");
+		loadSmsFromBackup.setFocusPainted(false);
+		LoadSmsFromBackupActionListener loadSmsListener = createLoadSmsFromBackupActionListener();
+		loadSmsFromBackup.addActionListener(loadSmsListener);
+		
+		tools.add(loadSmsViaSFTP);
+		tools.add(loadSmsFromBackup);
 		tools.add(exportToTxt);
 		tools.add(exportToHtml);
 
@@ -125,8 +132,13 @@ public class MainWindow extends JPanel implements ActionListener {
 
 	}
 
-	private LoadSmsActionListener createLoadSmsActionListenert() {
-		LoadSmsActionListener loadSmsListener = new LoadSmsActionListener(userField, passwordField, ipAddressField, this, smsTable, this.exportToTxt, this.exportToHtml);
+	private LoadSmsFromBackupActionListener createLoadSmsFromBackupActionListener() {
+		LoadSmsFromBackupActionListener loadSmsFromBackupListener = new LoadSmsFromBackupActionListener(this, smsTable, this.exportToTxt, this.exportToHtml);
+		return loadSmsFromBackupListener;
+	}
+
+	private LoadSmsViaSftpActionListener createLoadSmsActionListener() {
+		LoadSmsViaSftpActionListener loadSmsListener = new LoadSmsViaSftpActionListener(userField, passwordField, ipAddressField, this, smsTable, this.exportToTxt, this.exportToHtml);
 		return loadSmsListener;
 	}
 

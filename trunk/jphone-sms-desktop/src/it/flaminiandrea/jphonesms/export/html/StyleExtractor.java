@@ -21,7 +21,6 @@ public class StyleExtractor {
 			Enumeration e = zipfile.entries();
 			while(e.hasMoreElements()) {
 				entry = (ZipEntry) e.nextElement();
-				System.out.println("Extracting: " +entry);
 				is = new BufferedInputStream(zipfile.getInputStream(entry));
 				int count;
 				byte data[] = new byte[BUFFER];
