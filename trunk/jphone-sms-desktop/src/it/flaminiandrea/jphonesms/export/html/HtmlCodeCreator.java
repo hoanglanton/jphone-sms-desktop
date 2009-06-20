@@ -28,7 +28,6 @@ public class HtmlCodeCreator {
 	private String createDivIntroCode() {
 		return 
 		"<div id=\"intro\">"+lineSeparator+
-		"<h1>jPhone SMS Desktop</h1>"+lineSeparator+
 		"</div>";
 	}
 
@@ -124,9 +123,9 @@ public class HtmlCodeCreator {
 	}
 
 	private String createDivRightCode(List<String> nameList, Data data) {
-		String result = "<div id=\"right\">" + lineSeparator;;
+		String result = "<div id=\"right\">" + lineSeparator;
 		List<Entry> list = data.getEntriesByNameAndByReverseDate();
-		result = 
+		result += 
 			"<h1>jPhone SMS Desktop STATS:</h1><br />" + lineSeparator;
 		for (String string : nameList) {
 			result += 

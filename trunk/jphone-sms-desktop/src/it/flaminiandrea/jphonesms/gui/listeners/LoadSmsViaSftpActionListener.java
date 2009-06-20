@@ -16,8 +16,6 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-
-
 public class LoadSmsViaSftpActionListener implements ActionListener {
 
 	private JTextField userField, passwordField, ipAddressField;
