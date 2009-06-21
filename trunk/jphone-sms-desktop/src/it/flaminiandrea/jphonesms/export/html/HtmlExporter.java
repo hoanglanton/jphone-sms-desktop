@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.jfree.data.category.DefaultCategoryDataset;
+
 import it.flaminiandrea.jphonesms.domain.Data;
 import it.flaminiandrea.jphonesms.domain.Entry;
 import it.flaminiandrea.jphonesms.export.Exporter;
@@ -58,16 +60,26 @@ public class HtmlExporter implements Exporter {
 	}
 
 	private boolean makeIndexFile() throws Exception {
+		List<String> nameList = getNameList();
 		File directory= new File(this.pathToDirectory + fileSeparator);
 		if (!directory.exists()) {
 			directory.mkdirs();
 		}
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		for (String string : nameList) {
+			dataset.addValue(data.getEntriesBySenderName(string).size(), "", string + " " + data.getEntriesBySenderName(string).size());
+		}
+		BarChart3D chart = new BarChart3D(dataset);
+		String pathToImage = this.pathToDirectory + fileSeparator + "chart.png";
+		chart.saveChartAsPNG(pathToImage);
+
 		File newFile= new File(this.pathToDirectory + fileSeparator + "index.html");
 		FileOutputStream output = new FileOutputStream(newFile);
 		HtmlCodeCreator codeCreator = new HtmlCodeCreator();
-		List<String> nameList = getNameList();
-		String indexCode = codeCreator.createIndexCode(nameList, data);
+
+		String indexCode = codeCreator.createIndexCode(nameList, data, pathToImage);
 		output.write(indexCode.getBytes());
+
 		return true;
 	}
 

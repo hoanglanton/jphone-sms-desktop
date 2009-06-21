@@ -88,6 +88,7 @@ public class HtmlCodeCreator {
 	private String createDivLeftCode(List<String> nameList, String pathToIndex, String pathToMessages) {
 		String result = 
 			"<div id=\"left\">" + lineSeparator +
+			"<a href=\""+pathToIndex+"index.html\"><b>jPhone SMS Desktop Stats</b></a><br /><br />" + lineSeparator +
 			"<h2>Senders:</h2>" + lineSeparator +
 			"<ul id=\"leftmenu\">";
 		for (String name : nameList) {
@@ -99,14 +100,11 @@ public class HtmlCodeCreator {
 		}
 		result +=
 			"</ul>" + lineSeparator +
-			"<br />" + lineSeparator +
-			"<br />" + lineSeparator +
-			"<a href=\""+pathToIndex+"index.html\"><b>jPhone SMS Desktop Stats</b></a>" + lineSeparator +
 			"</div>";
 		return result;
 	}
 
-	public String createIndexCode(List<String> nameList, Data data) {
+	public String createIndexCode(List<String> nameList, Data data, String pathToImage) {
 		String result = 
 			"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" + lineSeparator +
 			"<html>" + lineSeparator +
@@ -116,24 +114,19 @@ public class HtmlCodeCreator {
 			this.createDivLogoCode() + lineSeparator +
 			this.createDivIntroCode() + lineSeparator +
 			this.createDivLeftCode(nameList,"","messages/") + lineSeparator +
-			this.createDivRightCode(nameList, data) + lineSeparator +
+			this.createDivRightCode(nameList, data, pathToImage) + lineSeparator +
 			"</div>" + lineSeparator +
 			"</body>" + lineSeparator;
 		return result;
 	}
 
-	private String createDivRightCode(List<String> nameList, Data data) {
-		String result = "<div id=\"right\">" + lineSeparator;
+	private String createDivRightCode(List<String> nameList, Data data, String pathToImage) {
 		List<Entry> list = data.getEntriesByNameAndByReverseDate();
+		String result = "<div id=\"right\">" + lineSeparator;
 		result += 
-			"<h1>jPhone SMS Desktop STATS:</h1><br />" + lineSeparator;
-		for (String string : nameList) {
-			result += 
-				"Number of Messages from/sent to " + string + ": " + 
-				data.getEntriesBySenderName(string).size() + 
-				"<br />" + lineSeparator;
-		}
-		return result + "<br/>Total Number of Messages: " + list.size() + lineSeparator + "</div>";
+			"<img src=\""+pathToImage+"\" /><br /><br />" +
+			"<h1>Total Number of Messages: " + list.size() + "</h1>" + lineSeparator;
+		return result + lineSeparator + "</div>";
 	}
 
 }
