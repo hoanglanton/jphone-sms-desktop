@@ -50,7 +50,7 @@ public class HtmlCodeCreator {
 	private String createDivRightCode(List<Entry> entries) {
 		String result = 
 			"<div id=\"right\">" + lineSeparator +
-			"<h2>SMS from: " + entries.get(0).getName() + "</h2>";
+			"<h2>Contact: " + entries.get(0).getName() + "</h2>";
 		for (Entry entry : entries) {
 			String direction ="rcvd";
 			if(entry.getFlags().equals("Sent to:")) {
@@ -89,7 +89,7 @@ public class HtmlCodeCreator {
 		String result = 
 			"<div id=\"left\">" + lineSeparator +
 			"<a href=\""+pathToIndex+"index.html\"><b>jPhone SMS Desktop Stats</b></a><br /><br />" + lineSeparator +
-			"<h2>Senders:</h2>" + lineSeparator +
+			"<h2>Contacts:</h2>" + lineSeparator +
 			"<ul id=\"leftmenu\">";
 		for (String name : nameList) {
 			String fileName = name.replace(" ", "").replace("'", "").replace("à", "a").toLowerCase();
