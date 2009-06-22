@@ -77,7 +77,7 @@ public class HtmlExporter implements Exporter {
 		FileOutputStream output = new FileOutputStream(newFile);
 		HtmlCodeCreator codeCreator = new HtmlCodeCreator();
 
-		String indexCode = codeCreator.createIndexCode(nameList, data, pathToImage);
+		String indexCode = codeCreator.createIndexCode(nameList, data);
 		output.write(indexCode.getBytes());
 
 		return true;

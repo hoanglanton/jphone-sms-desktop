@@ -2,7 +2,7 @@ package it.flaminiandrea.jphonesms.export.html;
 
 import it.flaminiandrea.jphonesms.domain.Data;
 import it.flaminiandrea.jphonesms.domain.Entry;
-
+ 
 import java.util.List;
 
 public class HtmlCodeCreator {
@@ -104,7 +104,7 @@ public class HtmlCodeCreator {
 		return result;
 	}
 
-	public String createIndexCode(List<String> nameList, Data data, String pathToImage) {
+	public String createIndexCode(List<String> nameList, Data data) {
 		String result = 
 			"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" + lineSeparator +
 			"<html>" + lineSeparator +
@@ -114,17 +114,17 @@ public class HtmlCodeCreator {
 			this.createDivLogoCode() + lineSeparator +
 			this.createDivIntroCode() + lineSeparator +
 			this.createDivLeftCode(nameList,"","messages/") + lineSeparator +
-			this.createDivRightCode(nameList, data, pathToImage) + lineSeparator +
+			this.createDivRightCode(nameList, data) + lineSeparator +
 			"</div>" + lineSeparator +
 			"</body>" + lineSeparator;
 		return result;
 	}
 
-	private String createDivRightCode(List<String> nameList, Data data, String pathToImage) {
+	private String createDivRightCode(List<String> nameList, Data data) {
 		List<Entry> list = data.getEntriesByNameAndByReverseDate();
 		String result = "<div id=\"right\">" + lineSeparator;
 		result += 
-			"<img src=\""+pathToImage+"\" /><br /><br />" +
+			"<img src=\"chart.png\" /><br /><br />" +
 			"<h1>Total Number of Messages: " + list.size() + "</h1>" + lineSeparator;
 		return result + lineSeparator + "</div>";
 	}
