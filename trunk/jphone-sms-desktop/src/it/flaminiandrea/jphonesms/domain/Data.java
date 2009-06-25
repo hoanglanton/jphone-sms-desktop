@@ -8,21 +8,14 @@ import java.util.*;
 public class Data {
 	List<Entry> entries;
 
-	public Data(SmsBoard smsBoard, ContactsBoard contactsBoard) {
+	public Data(SmsBoard smsBoard, Map<String, String> contactsMap) {
 		this.entries = new ArrayList<Entry>();
-		createData(smsBoard, contactsBoard);
-	}
-
-	private void createData(SmsBoard smsBoard, ContactsBoard contactsBoard) {
 		for (ShortMessage shortMessage : smsBoard.getMessages()) {
 			String address = shortMessage.getAddress();
-			Contact resulContact = contactsBoard.getContactGivenAddressLastNCyphres(address, 7);
-			String name;
-			if (resulContact == null) {
-				name = "Unknown";
-			} else {
-				name = contactsBoard.getContactGivenAddressLastNCyphres(address, 7).getName();
-			}
+			String name = contactsMap.get(address.substring(address.length()-4));
+			if (name == null) {
+				name = address;
+			} 
 			Entry newEntry = new Entry(shortMessage, name);
 			entries.add(newEntry);
 		}

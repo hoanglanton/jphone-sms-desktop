@@ -1,7 +1,6 @@
 package it.flaminiandrea.jphonesms.gui.listeners;
 
 import it.flaminiandrea.jphonesms.db.queries.QueryFactory;
-import it.flaminiandrea.jphonesms.domain.ContactsBoard;
 import it.flaminiandrea.jphonesms.domain.Data;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
 import it.flaminiandrea.jphonesms.gui.MainWindow;
@@ -11,6 +10,7 @@ import it.flaminiandrea.jphonesms.sftp.ClientSFTP;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -55,8 +55,8 @@ public class LoadSmsViaSftpActionListener implements ActionListener {
 				addressBook = client.getFile(user, password, ipAddress, "/var/mobile/Library/AddressBook/AddressBook.sqlitedb", pathToDirectory);
 				QueryFactory qFactory = new QueryFactory();
 				SmsBoard smsBoard = qFactory.retrieveSmsBoard(smsDB.getAbsolutePath());
-				ContactsBoard contactsBoard = qFactory.retrieveContactsBoard(addressBook.getAbsolutePath());
-				Data data = new Data(smsBoard, contactsBoard);
+				Map<String,String> contactsMap = qFactory.retrieveMapValueName(addressBook.getAbsolutePath());
+				Data data = new Data(smsBoard, contactsMap);
 				this.smsTable.getShortMessagesTableModel().setSmsData(data);
 				this.smsTable.resizeAndRepaintMe();
 				this.mainFrame.setSmsData(data);
