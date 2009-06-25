@@ -161,7 +161,7 @@ public class MainWindow extends JPanel implements ActionListener {
 		JFrame frame = new JFrame();
 		final MainWindow ex = new MainWindow();
 		frame.getContentPane().add(ex);
-		frame.setTitle("jPhone SMS Desktop 1.0");
+		frame.setTitle("jPhone SMS Desktop 1.0.1");
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
