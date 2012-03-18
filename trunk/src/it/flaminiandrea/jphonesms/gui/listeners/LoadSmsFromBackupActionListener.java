@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Map;
 
+import it.flaminiandrea.jphonesms.costants.FromBackupConstants;
 import it.flaminiandrea.jphonesms.db.queries.QueryFactory;
 import it.flaminiandrea.jphonesms.domain.Data;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
@@ -35,7 +36,7 @@ public class LoadSmsFromBackupActionListener implements ActionListener {
 		chooser = new JFileChooser();
 		chooser.setDialogTitle("Choose iPhone Backup Directory.");
 		this.chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		this.chooser.setCurrentDirectory(new java.io.File("."));
+		this.chooser.setCurrentDirectory(getSystemBackupDirectory());
 		this.chooser.setAcceptAllFileFilterUsed(false);
 		this.isChoosed = this.chooser.showOpenDialog(mainFrame);
 		String choice = getChoose();
@@ -43,14 +44,8 @@ public class LoadSmsFromBackupActionListener implements ActionListener {
 			JOptionPane.showMessageDialog(mainFrame, "The directory you have choosen is invalid.", "Warning!", 2);
 		} else {
 			try {
-				File smsDB = new File(choice + fileSeparator + "3d0d7e5fb2ce288813306e4d4636395e047a3d28.mddata");
-				if (!smsDB.exists()) {
-					smsDB = new File(choice + fileSeparator + "3d0d7e5fb2ce288813306e4d4636395e047a3d28.mdbackup");
-				}
-				File addressBook = new File(choice + fileSeparator + "31bb7ba8914766d4ba40d6dfb6113c8b614be442.mddata");
-				if (!addressBook.exists()) {
-					addressBook = new File(choice + fileSeparator + "31bb7ba8914766d4ba40d6dfb6113c8b614be442.mdbackup");
-				}
+				File smsDB = retrieveSmsDbBackupFileName(choice);
+				File addressBook = retrieveContactsDbBackupFileName(choice);
 				QueryFactory qFactory = new QueryFactory();
 				SmsBoard smsBoard = qFactory.retrieveSmsBoard(smsDB.getAbsolutePath());
 				Map<String,String> contactsMap = qFactory.retrieveMapValueName(addressBook.getAbsolutePath());
@@ -66,6 +61,38 @@ public class LoadSmsFromBackupActionListener implements ActionListener {
 			}
 		}
 
+	}
+
+	private File retrieveContactsDbBackupFileName(String choice) {
+		File addressBook = new File(choice + fileSeparator + FromBackupConstants.SQLITE3_DB_CONTACTS_FILE_NAME_MDDATA);
+		if (!addressBook.exists()) {
+			addressBook = new File(choice + fileSeparator + FromBackupConstants.SQLITE3_DB_CONTACTS_FILE_NAME);
+		}
+		if (!addressBook.exists()) {
+			addressBook = new File(choice + fileSeparator + FromBackupConstants.SQLITE3_DB_CONTACTS_FILE_NAME_MDBACKUP);
+		}
+		return addressBook;
+	}
+
+	private File retrieveSmsDbBackupFileName(String choice) {
+		File smsDB = new File(choice + fileSeparator + FromBackupConstants.SQLITE3_DB_SMS_FILE_NAME_MDDATA);
+		if (!smsDB.exists()) {
+			smsDB = new File(choice + fileSeparator + FromBackupConstants.SQLITE3_DB_SMS_FILE_NAME);
+		}
+		if (!smsDB.exists()) {
+			smsDB = new File(choice + fileSeparator + FromBackupConstants.SQLITE3_DB_SMS_FILE_NAME_MDBACKUP);
+		}
+		return smsDB;
+	}
+
+	private File getSystemBackupDirectory() {
+		String osName = System.getProperty("os.name");
+		String userHome = System.getProperty("user.home");
+		String result = ".";
+		if (osName.equalsIgnoreCase(FromBackupConstants.MAC_OS_X_OS_NAME)) {
+			result = userHome+FromBackupConstants.MAC_OS_X_PATH_TO_BACKUP;
+		}
+		return new java.io.File(result);
 	}
 
 	public String getChoose() {

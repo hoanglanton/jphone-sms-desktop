@@ -20,15 +20,20 @@ public class QueryFactory {
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+smsDBPath);
 		Statement stat = conn.createStatement();
 		conn.setAutoCommit(true);
-		ResultSet rs = stat.executeQuery("SELECT address, date, text, flags FROM message WHERE text is not null ORDER BY date");
+		ResultSet rs = stat.executeQuery("SELECT address, madrid_handle, date, text, flags FROM message WHERE text is not null ORDER BY date");
 
 		SmsBoard smsBoard = new SmsBoard();
 		while (rs.next()) {
+			boolean isIMessage = false;
 			String address = rs.getString("address");
+			if (address == null || address.equalsIgnoreCase("")) {
+				address = rs.getString("madrid_handle");
+				isIMessage = true;
+			}
 			String text = rs.getString("text");
 			Date date = timeStampToDate(rs.getLong("date"));
 			int flags = rs.getInt("flags");
-			ShortMessage currentMessage = new ShortMessage(address, date, text, flags);
+			ShortMessage currentMessage = new ShortMessage(address, date, text, flags, isIMessage);
 			smsBoard.addShortMessage(currentMessage);
 		}
 		conn.close();

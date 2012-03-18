@@ -5,6 +5,7 @@ import it.flaminiandrea.jphonesms.domain.Entry;
 import it.flaminiandrea.jphonesms.export.Exporter;
 import it.flaminiandrea.jphonesms.export.html.HtmlExporter;
 import it.flaminiandrea.jphonesms.export.txt.TxtExporter;
+import it.flaminiandrea.jphonesms.gui.listeners.CreditsActionListener;
 import it.flaminiandrea.jphonesms.gui.listeners.ExportActionListener;
 import it.flaminiandrea.jphonesms.gui.listeners.LoadSmsFromBackupActionListener;
 import it.flaminiandrea.jphonesms.gui.listeners.LoadSmsViaSftpActionListener;
@@ -14,13 +15,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,10 +25,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
-import javax.swing.WindowConstants;
 
 
-public class MainWindow extends JPanel implements ActionListener {
+public class MainWindow extends JPanel {
 
 	private static final long serialVersionUID = -9035743766726029237L;
 	private static final Font IL_FONT = new Font("Arial",Font.PLAIN,12);
@@ -111,7 +107,7 @@ public class MainWindow extends JPanel implements ActionListener {
 
 		this.credits = new JButton("Credits");
 		credits.setFocusPainted(false);
-		credits.addActionListener(this);
+		credits.addActionListener(new CreditsActionListener());
 		tools.add(credits);
 
 		this.exportToTxt.setEnabled(false);
@@ -142,48 +138,14 @@ public class MainWindow extends JPanel implements ActionListener {
 		return loadSmsListener;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object o = e.getSource();
-		if (o.equals(this.credits)) {
-			String mess = 
-				"Copyright (C) 2009\n" +
-				"Author: Andrea Flamini\n"+
-				"A.K.A. RED\n"+
-				"Email's author: and.flamini@gmail.com\n"+
-				"Site's author: http://webred.altervista.org\n"+
-				"\n";
-			JOptionPane.showMessageDialog(null, mess, "Credits", JOptionPane.PLAIN_MESSAGE, null);
-		}
-	}
-
-	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		final MainWindow ex = new MainWindow();
-		frame.getContentPane().add(ex);
-		frame.setTitle("jPhone SMS Desktop 1.0.1");
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		int larg = 600;
-		int alt = screenSize.height/2;
-		frame.setSize(larg, alt);
-		frame.setLocation(screenSize.width/2-larg/2,screenSize.height/2-alt/2);
-
-		frame.setVisible(true);
-		frame.setResizable(true);
-	}
-
 	private void addElement (Container c, Component component, int x, int y, int h, int w) {
 		component.setBounds(x, y, h, w);
 		c.add(component);
 	}
 
-
 	public Data getSmsData() {
 		return smsData;
 	}
-
 
 	public void setSmsData(Data smsData) {
 		this.smsData = smsData;
