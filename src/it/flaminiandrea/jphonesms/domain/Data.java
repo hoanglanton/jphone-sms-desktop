@@ -12,13 +12,22 @@ public class Data {
 		this.entries = new ArrayList<Entry>();
 		for (ShortMessage shortMessage : smsBoard.getMessages()) {
 			String address = shortMessage.getAddress();
-			String name = contactsMap.get(address.substring(address.length()-4));
+			String key = retrieveKey(address);
+			String name = contactsMap.get(key);
 			if (name == null) {
 				name = address;
 			} 
 			Entry newEntry = new Entry(shortMessage, name);
 			entries.add(newEntry);
 		}
+	}
+
+	private String retrieveKey(String address) {
+		String key = address;
+		if (address.length() > 4) {
+			key = address.substring(address.length()-4);
+		}
+		return key;
 	}
 
 	public List<Entry> getEntriesByNameAndByReverseDate() {
