@@ -8,12 +8,12 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-import it.flaminiandrea.jphonesms.domain.Data;
-import it.flaminiandrea.jphonesms.domain.Entry;
+import it.flaminiandrea.jphonesms.domain.ShortMessage;
+import it.flaminiandrea.jphonesms.domain.SmsBoard;
 import it.flaminiandrea.jphonesms.export.Exporter;
 
 public class TxtExporter implements Exporter {
-	private Data data;
+	private SmsBoard smsBoard;
 	private String pathToDirectory;
 	private String fileSeparator = System.getProperties().getProperty("file.separator");
 	private String lineSeparator = System.getProperties().getProperty("line.separator");
@@ -26,6 +26,8 @@ public class TxtExporter implements Exporter {
 			File newFile= new File(this.pathToDirectory + fileSeparator + "iphone_sms_"+formatter.format(data)+".txt");
 			FileOutputStream output = new FileOutputStream(newFile);
 			output.write(toTxt().getBytes());
+			output.flush();
+			output.close();
 			String mess = "SMS(s) exported to " + pathToDirectory + fileSeparator + "exported.txt";
 			JOptionPane.showMessageDialog(null, mess, "Info", JOptionPane.INFORMATION_MESSAGE, null);
 			return true;
@@ -38,21 +40,21 @@ public class TxtExporter implements Exporter {
 
 	public String toTxt() {
 		String result = "";
-		for (Entry entryToExport : this.data.getEntriesByNameAndByReverseDate()) {
+		for (ShortMessage smsToExport : this.smsBoard.getEntriesByNameAndByReverseDate()) {
 			result += 
 				"-------------------------------------------------" + lineSeparator +
-				entryToExport.toString() +
+				smsToExport.toString() +
 				"-------------------------------------------------" +lineSeparator + lineSeparator;
 		}
 		return result;
 	}
 
-	public Data getData() {
-		return data;
+	public SmsBoard getSmsBoard() {
+		return this.smsBoard;
 	}
 
-	public void setData(Data data) {
-		this.data = data;
+	public void setSmsBoard(SmsBoard smsBoard) {
+		this.smsBoard = smsBoard;
 	}
 
 	public String getPathToDirectory() {

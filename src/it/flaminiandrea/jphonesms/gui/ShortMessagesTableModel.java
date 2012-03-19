@@ -5,12 +5,12 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import it.flaminiandrea.jphonesms.domain.Data;
-import it.flaminiandrea.jphonesms.domain.Entry;
+import it.flaminiandrea.jphonesms.domain.ShortMessage;
+import it.flaminiandrea.jphonesms.domain.SmsBoard;
 
 public class ShortMessagesTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 5592285361462851066L;
-	private Data smsData;
+	private SmsBoard smsBoard;
 	private static final int DIRECTION = 0;
 	private static final int NAME = 1;
 	private static final int ADDRESS = 2;
@@ -19,8 +19,8 @@ public class ShortMessagesTableModel extends AbstractTableModel {
 
 	private List<String> fields;
 
-	public ShortMessagesTableModel(Data smsData) {
-		this.smsData = smsData;
+	public ShortMessagesTableModel(SmsBoard smsBoard) {
+		this.smsBoard = smsBoard;
 		this.fields = new ArrayList<String>();
 		this.fields.add("Direction");
 		this.fields.add("Name");
@@ -42,7 +42,7 @@ public class ShortMessagesTableModel extends AbstractTableModel {
 	@Override
 	public int getRowCount() {
 		try {
-			return this.smsData.getEntriesByNameAndByReverseDate().size();
+			return this.smsBoard.getEntriesByNameAndByReverseDate().size();
 		} catch (java.lang.NullPointerException e) {
 			return 0;
 		}
@@ -50,29 +50,30 @@ public class ShortMessagesTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		List<Entry> entries = this.smsData.getEntriesByNameAndByReverseDate();
-		Entry entry = entries.get(rowIndex);
+		List<ShortMessage> messages = this.smsBoard.getEntriesByNameAndByReverseDate();
+		ShortMessage sms = messages.get(rowIndex);
 		switch (columnIndex) {
 		case DIRECTION:
-			return entry.getFlags();
+			return sms.getFlowDescription();
 		case NAME:
-			return entry.getName();
+			return sms.getContactName();
 		case ADDRESS:
-			return entry.getAddress();
+			return sms.getAddress();
 		case DATE:
-			return entry.getFormattedDate();
+			return sms.getFormattedDate();
 		case TEXT:
-			return entry.getText();
+			return sms.getText();
 		default:
 			return null;
 		}
 	}
 
-	public Data getSmsData() {
-		return smsData;
+	public SmsBoard getSmsBoard() {
+		return this.smsBoard;
 	}
 
-	public void setSmsData(Data smsData) {
-		this.smsData = smsData;
+	public void setSmsBoard(SmsBoard smsBoard) {
+		this.smsBoard = smsBoard;
+		
 	}
 }

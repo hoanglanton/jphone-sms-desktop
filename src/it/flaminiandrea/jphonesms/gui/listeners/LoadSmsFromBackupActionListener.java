@@ -3,11 +3,9 @@ package it.flaminiandrea.jphonesms.gui.listeners;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Map;
 
 import it.flaminiandrea.jphonesms.costants.FromBackupConstants;
 import it.flaminiandrea.jphonesms.db.queries.QueryFactory;
-import it.flaminiandrea.jphonesms.domain.Data;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
 import it.flaminiandrea.jphonesms.gui.MainWindow;
 import it.flaminiandrea.jphonesms.gui.ShortMessagesTable;
@@ -46,13 +44,11 @@ public class LoadSmsFromBackupActionListener implements ActionListener {
 			try {
 				File smsDB = retrieveSmsDbBackupFileName(choice);
 				File addressBook = retrieveContactsDbBackupFileName(choice);
-				QueryFactory qFactory = new QueryFactory();
-				SmsBoard smsBoard = qFactory.retrieveSmsBoard(smsDB.getAbsolutePath());
-				Map<String,String> contactsMap = qFactory.retrieveMapValueName(addressBook.getAbsolutePath());
-				Data data = new Data(smsBoard, contactsMap);
-				this.smsTable.getShortMessagesTableModel().setSmsData(data);
+				QueryFactory qFactory = new QueryFactory(smsDB.getAbsolutePath(), addressBook.getAbsolutePath());
+				SmsBoard smsBoard = qFactory.retrieveSmsBoard();
+				this.smsTable.getShortMessagesTableModel().setSmsBoard(smsBoard);
 				this.smsTable.resizeAndRepaintMe();
-				this.mainFrame.setSmsData(data);
+				this.mainFrame.setSmsBoard(smsBoard);
 				this.exportToTXT.setEnabled(true);
 				this.exportToHTML.setEnabled(true);
 			} catch (Exception e1) {
