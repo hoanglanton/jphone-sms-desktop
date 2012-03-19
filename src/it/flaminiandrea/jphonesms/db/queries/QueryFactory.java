@@ -96,7 +96,7 @@ public class QueryFactory {
 				"FROM madrid_attachment " +
 				"WHERE created_date LIKE '" + date.substring(0, 4) + "%'");
 		while (rs.next()) {
-			String backupDirectory = smsDBPath.substring(0, smsDBPath.lastIndexOf(System.getProperty("file.separator"))-1);
+			String backupDirectory = smsDBPath.substring(0, smsDBPath.lastIndexOf(System.getProperty("file.separator")));
 			String mobilePath = rs.getString("filename");
 			String mimeType = rs.getString("mime_type");
 			Attachment currentAttachment = new Attachment(mobilePath, backupDirectory);
@@ -118,7 +118,7 @@ public class QueryFactory {
 				"FROM msg_pieces " +
 				"WHERE message_id = " + messageId);
 		while (rs.next()) {
-			String backupDirectory = smsDBPath.substring(0, smsDBPath.lastIndexOf(System.getProperty("file.separator"))-1);
+			String backupDirectory = smsDBPath.substring(0, smsDBPath.lastIndexOf(System.getProperty("file.separator")));
 			String mobilePath = retrieveMobilePathFromContentLoc(rs.getString("content_loc"));
 			String mimeType = rs.getString("content_type");
 			Attachment currentAttachment = new Attachment(mobilePath, backupDirectory);

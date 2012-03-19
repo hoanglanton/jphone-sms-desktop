@@ -1,42 +1,46 @@
 package it.flaminiandrea.jphonesms.export.html;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 public class StyleExtractor {
 
-	public static boolean unzip(String fileUri, String pathWhereToExtract) throws IOException {
-		final int BUFFER = 20480;
-		BufferedOutputStream dest = null;
-		BufferedInputStream is = null;
-		ZipEntry entry;
-		ZipFile zipfile = new ZipFile(fileUri);
-		while(zipfile.entries().hasMoreElements()) {
-			entry = (ZipEntry) zipfile.entries().nextElement();
-			is = new BufferedInputStream(zipfile.getInputStream(entry));
-			int count;
-			byte data[] = new byte[BUFFER];
-			if (entry.isDirectory()) {
-				File directory = new File(pathWhereToExtract + entry.getName());
-				if (!directory.exists())
-					directory.mkdirs();
-			} else {
-				FileOutputStream fos = new FileOutputStream(pathWhereToExtract + entry.getName());
-				dest = new BufferedOutputStream(fos, BUFFER);
-				while ((count = is.read(data, 0, BUFFER)) != -1) {
-					dest.write(data, 0, count);
-				}
-				dest.flush();
-				dest.close();
-				is.close();
+	public static boolean unzip(String fileUri, String pathWhereToExtract) {
+		try {
+			byte[] buf = new byte[1024];
+			ZipInputStream zinstream = new ZipInputStream(
+					new FileInputStream(fileUri));
+			ZipEntry zentry = zinstream.getNextEntry();
+			while (zentry != null) {
+				if (zentry.isDirectory()) {
+					File directory = new File(pathWhereToExtract + zentry.getName());
+					if (!directory.exists())
+						directory.mkdirs();
+					zinstream.closeEntry();
+					zentry = zinstream.getNextEntry();
+				} else {
+					String entryName = zentry.getName();
+					FileOutputStream outstream = new FileOutputStream( pathWhereToExtract + entryName);
+					int n;
+
+					while ((n = zinstream.read(buf, 0, 1024)) > -1) {
+						outstream.write(buf, 0, n);
+
+					}
+					outstream.close();
+					zinstream.closeEntry();
+					zentry = zinstream.getNextEntry();
+				} 
 			}
+			zinstream.close();
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-		return true;
 	}
 
 }
