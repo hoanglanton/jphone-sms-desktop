@@ -109,7 +109,8 @@ public class HtmlCodeCreator {
 			int index = 1;
 			for (Attachment attachment : attachments) {
 				String backupFilePath = attachment.getBackupPath();
-				if (backupFilePath != null && !backupFilePath.equalsIgnoreCase("") && (new File(backupFilePath).exists())) {
+				File backupFile = new File(backupFilePath);
+				if (backupFilePath != null && !backupFilePath.equalsIgnoreCase("") && (backupFile.exists())) {
 					if (attachment.getContent() != null && !attachment.getContent().equalsIgnoreCase("")) {
 						attachmentsContent += attachment.getContent();
 					}
