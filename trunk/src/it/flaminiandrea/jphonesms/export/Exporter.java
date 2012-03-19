@@ -1,11 +1,11 @@
 package it.flaminiandrea.jphonesms.export;
 
-import it.flaminiandrea.jphonesms.domain.Data;
+import it.flaminiandrea.jphonesms.domain.SmsBoard;
 
 public interface Exporter {
 	public boolean export();
-	public Data getData();
-	public void setData(Data data);
+	public SmsBoard getSmsBoard();
+	public void setSmsBoard(SmsBoard smsBoard);
 	public String getPathToDirectory();
 	public void setPathToDirectory(String pathToDirectory);
 }

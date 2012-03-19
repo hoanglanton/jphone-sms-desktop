@@ -12,12 +12,12 @@ import javax.swing.JOptionPane;
 
 import org.jfree.data.category.DefaultCategoryDataset;
 
-import it.flaminiandrea.jphonesms.domain.Data;
-import it.flaminiandrea.jphonesms.domain.Entry;
+import it.flaminiandrea.jphonesms.domain.ShortMessage;
+import it.flaminiandrea.jphonesms.domain.SmsBoard;
 import it.flaminiandrea.jphonesms.export.Exporter;
 
 public class HtmlExporter implements Exporter {
-	private Data data;
+	private SmsBoard smsBoard;
 	private String pathToDirectory;
 	private String fileSeparator = System.getProperties().getProperty("file.separator");
 
@@ -26,7 +26,7 @@ public class HtmlExporter implements Exporter {
 		try {
 			boolean indexFile = makeIndexFile();
 			boolean messagesFiles = makeMessagesFiles();
-			boolean isStyleCreated = StyleExtractor.unzip("htmlstyle" + fileSeparator + "jphone-style.jps", this.pathToDirectory + fileSeparator);
+			boolean isStyleCreated = StyleExtractor.unzip("htmlstyle" + this.fileSeparator + "jphone-style.jps", this.pathToDirectory + this.fileSeparator);
 			String mess = "SMS(s) exported to " + pathToDirectory;
 			JOptionPane.showMessageDialog(null, mess, "Info", JOptionPane.INFORMATION_MESSAGE, null);
 			return indexFile && messagesFiles && isStyleCreated;
@@ -46,62 +46,72 @@ public class HtmlExporter implements Exporter {
 	}
 
 	private void makeMessagesPage(String string, List<String> nameList) throws Exception {
-		File directory= new File(this.pathToDirectory + fileSeparator + "messages" + fileSeparator);
+		File directory= new File(this.pathToDirectory + this.fileSeparator + "messages" + this.fileSeparator);
 		if (!directory.exists()) {
 			directory.mkdirs();
 		}
-		List<Entry> entries = this.data.getEntriesBySenderName(string);
+		File attachmentsDir = new File(this.pathToDirectory + this.fileSeparator + "attachments" + this.fileSeparator);
+		if (!attachmentsDir.exists()) {
+			attachmentsDir.mkdirs();
+		}
+		List<ShortMessage> messages = this.smsBoard.getEntriesBySenderName(string);
 		String fileName = string.replace(" ", "").replace("'", "").replace("à", "a").toLowerCase();
-		HtmlCodeCreator codeCreator = new HtmlCodeCreator();
-		String page = codeCreator.createMessagesPageCode(nameList, entries);
-		File newFile= new File(this.pathToDirectory + fileSeparator + "messages" + fileSeparator + fileName + ".html");
+		HtmlCodeCreator codeCreator = new HtmlCodeCreator(attachmentsDir);
+		String page = codeCreator.createMessagesPageCode(nameList, messages);
+		File newFile= new File(this.pathToDirectory + this.fileSeparator + "messages" + this.fileSeparator + fileName + ".html");
 		FileOutputStream output = new FileOutputStream(newFile);
 		output.write(page.getBytes());
+		output.flush();
+		output.close();
 	}
 
 	private boolean makeIndexFile() throws Exception {
 		List<String> nameList = getNameList();
-		File directory= new File(this.pathToDirectory + fileSeparator);
+		File directory= new File(this.pathToDirectory + this.fileSeparator);
 		if (!directory.exists()) {
 			directory.mkdirs();
 		}
+		File attachmentsDir = new File(this.pathToDirectory + this.fileSeparator + "attachments" + this.fileSeparator);
+		if (!attachmentsDir.exists()) {
+			attachmentsDir.mkdirs();
+		}
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		for (String string : nameList) {
-			dataset.addValue(data.getEntriesBySenderName(string).size(), "", string + " " + data.getEntriesBySenderName(string).size());
+			dataset.addValue(this.smsBoard.getEntriesBySenderName(string).size(), "", string + " " + this.smsBoard.getEntriesBySenderName(string).size());
 		}
 		BarChart3D chart = new BarChart3D(dataset);
-		String pathToImage = this.pathToDirectory + fileSeparator + "chart.png";
+		String pathToImage = this.pathToDirectory + this.fileSeparator + "chart.png";
 		chart.saveChartAsPNG(pathToImage);
 
-		File newFile= new File(this.pathToDirectory + fileSeparator + "index.html");
+		File newFile= new File(this.pathToDirectory + this.fileSeparator + "index.html");
 		FileOutputStream output = new FileOutputStream(newFile);
-		HtmlCodeCreator codeCreator = new HtmlCodeCreator();
+		HtmlCodeCreator codeCreator = new HtmlCodeCreator(attachmentsDir);
 
-		String indexCode = codeCreator.createIndexCode(nameList, data);
+		String indexCode = codeCreator.createIndexCode(nameList, this.smsBoard);
 		output.write(indexCode.getBytes());
 
 		return true;
 	}
 
 	private List<String> getNameList() {
-		List<Entry> list = this.data.getEntriesByNameAndByReverseDate();
+		List<ShortMessage> list = this.smsBoard.getEntriesByNameAndByReverseDate();
 		List<String> nameList = new ArrayList<String>();
 		String tempName = "";
-		for (Entry entry : list) {
-			if (!(tempName.equals(entry.getName()))) {
-				tempName = entry.getName();
+		for (ShortMessage sms : list) {
+			if (!(tempName.equals(sms.getContactName()))) {
+				tempName = sms.getContactName();
 				nameList.add(tempName);
 			}
 		}
 		return nameList;
 	}
 
-	public Data getData() {
-		return data;
+	public SmsBoard getSmsBoard() {
+		return this.smsBoard;
 	}
 
-	public void setData(Data data) {
-		this.data = data;
+	public void setSmsBoard(SmsBoard smsBoard) {
+		this.smsBoard = smsBoard;
 	}
 
 	public String getPathToDirectory() {

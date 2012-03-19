@@ -38,7 +38,7 @@ public class ExportActionListener implements ActionListener {
 			JOptionPane.showMessageDialog(panel, "The directory you have choosen is invalid.", "Warning!", 2);
 		} else {
 			exporter.setPathToDirectory(choice);
-			exporter.setData(this.panel.getSmsData());
+			exporter.setSmsBoard(this.panel.getSmsBoard());
 			exporter.export();
 		}
 	}

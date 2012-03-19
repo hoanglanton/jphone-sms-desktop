@@ -1,5 +1,7 @@
 package it.flaminiandrea.jphonesms.domain;
 
+import it.flaminiandrea.jphonesms.domain.comparators.ByNameAndByReverseDateComparator;
+
 import java.util.*;
 
 public class SmsBoard {
@@ -25,5 +27,22 @@ public class SmsBoard {
 
 	public List<ShortMessage> getMessages() {
 		return messages;
+	}
+	
+	public List<ShortMessage> getEntriesByNameAndByReverseDate() {
+		List<ShortMessage> result = new ArrayList<ShortMessage>(this.messages);
+		Comparator<ShortMessage> comparator = new ByNameAndByReverseDateComparator();
+		Collections.sort(result, comparator);
+		return result;
+	}
+
+	public List<ShortMessage> getEntriesBySenderName(String name) {
+		List<ShortMessage> result = new ArrayList<ShortMessage>();
+		for (ShortMessage entry : this.getEntriesByNameAndByReverseDate()) {
+			if (entry.getContactName().equals(name)) {
+				result.add(entry);
+			}
+		}
+		return result;
 	}
 }

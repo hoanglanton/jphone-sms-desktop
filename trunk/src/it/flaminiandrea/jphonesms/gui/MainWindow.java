@@ -1,7 +1,7 @@
 package it.flaminiandrea.jphonesms.gui;
 
-import it.flaminiandrea.jphonesms.domain.Data;
-import it.flaminiandrea.jphonesms.domain.Entry;
+import it.flaminiandrea.jphonesms.domain.ShortMessage;
+import it.flaminiandrea.jphonesms.domain.SmsBoard;
 import it.flaminiandrea.jphonesms.export.Exporter;
 import it.flaminiandrea.jphonesms.export.html.HtmlExporter;
 import it.flaminiandrea.jphonesms.export.txt.TxtExporter;
@@ -31,7 +31,7 @@ public class MainWindow extends JPanel {
 
 	private static final long serialVersionUID = -9035743766726029237L;
 	private static final Font IL_FONT = new Font("Arial",Font.PLAIN,12);
-	private Data smsData;
+	private SmsBoard smsBoard;
 
 	// COMPONENTI GRAFICI
 	private JToolBar tools;
@@ -48,7 +48,7 @@ public class MainWindow extends JPanel {
 	private void makeGraphics() {
 		this.setLayout(new BorderLayout());
 
-		smsTable = new ShortMessagesTable(new ShortMessagesTableModel(this.smsData), this);
+		smsTable = new ShortMessagesTable(new ShortMessagesTableModel(this.smsBoard), this);
 		smsTable.setFont(IL_FONT);
 		smsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
@@ -143,22 +143,22 @@ public class MainWindow extends JPanel {
 		c.add(component);
 	}
 
-	public Data getSmsData() {
-		return smsData;
+	public SmsBoard getSmsBoard() {
+		return smsBoard;
 	}
 
-	public void setSmsData(Data smsData) {
-		this.smsData = smsData;
+	public void setSmsBoard(SmsBoard smsBoard) {
+		this.smsBoard = smsBoard;
 	}
 
 	public void showSelectedMessage() {
 		int selectedRowIndex = this.smsTable.getSelectedRow();
-		if (this.smsData.getEntriesByNameAndByReverseDate().size() > 0 && selectedRowIndex >= 0) {
-			List<Entry> entries = this.smsData.getEntriesByNameAndByReverseDate();
-			if (selectedRowIndex < entries.size() && selectedRowIndex >= 0) {
-				Entry selectedEntry = (Entry)entries.get(selectedRowIndex);
-				if (selectedEntry != null) {
-					String mess = selectedEntry.toString();
+		if (this.smsBoard.getEntriesByNameAndByReverseDate().size() > 0 && selectedRowIndex >= 0) {
+			List<ShortMessage> messages = this.smsBoard.getEntriesByNameAndByReverseDate();
+			if (selectedRowIndex < messages.size() && selectedRowIndex >= 0) {
+				ShortMessage selectedSms = (ShortMessage) messages.get(selectedRowIndex);
+				if (selectedSms != null) {
+					String mess = selectedSms.toString();
 					JOptionPane.showMessageDialog(null, mess, "Message Number #" + selectedRowIndex, JOptionPane.PLAIN_MESSAGE, null);
 				}
 			}

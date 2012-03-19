@@ -11,7 +11,7 @@ import java.util.zip.ZipFile;
 public class StyleExtractor {
 
 	public static boolean unzip(String fileUri, String pathWhereToExtract) throws IOException {
-		final int BUFFER = 2048;
+		final int BUFFER = 20480;
 		BufferedOutputStream dest = null;
 		BufferedInputStream is = null;
 		ZipEntry entry;
