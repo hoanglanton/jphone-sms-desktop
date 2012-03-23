@@ -30,63 +30,64 @@ public class QueryFactory {
 		Statement stat = conn.createStatement();
 		conn.setAutoCommit(true);
 		ResultSet rs = stat.executeQuery("SELECT * " +
-				"FROM message " +
-				"WHERE text is not null OR is_madrid <> 1 " +
-				"ORDER BY date");
+				"FROM message");
 
 		SmsBoard smsBoard = new SmsBoard();
 		while (rs.next()) {
-
-			int messageId = rs.getInt("ROWID");
 			int isMadrid = rs.getInt("is_madrid");
-			ShortMessage currentMessage = null;
-			String address = null;
-			String text = null;
-			Date date = null;
-			String contactName = null;
-			Vector<Attachment> attachments = null;
-			int flags = -1;
-			boolean isSent = true;
-
-			switch (isMadrid) {
-			case FromBackupConstants.IS_NOT_MADRID:
-
-				address = rs.getString("address");
-				text = rs.getString("text");
-				date = timeStampToDate(rs.getLong("date"));
-				flags = rs.getInt("flags");
+			if (isMadrid == FromBackupConstants.IS_NOT_MADRID) {
+				boolean isSent = true;
+				int messageId = rs.getInt("ROWID");
+				String address = rs.getString("address");
+				String text = rs.getString("text");
+				String timestamp = rs.getString("date");
+				Date date = timeStampToDate(timestamp);
+				int flags = rs.getInt("flags");
 				if (flags == 2) { 
 					isSent = false;
 				}
-				attachments = retrieveAttachmentsByMessageId(messageId);
-				contactName = retrieveContactNameByPhoneAddress(address);
-				currentMessage = new ShortMessage(address, date, text, isSent, false, contactName, attachments);
-				break;
+				Vector<Attachment> attachments = retrieveAttachmentsByMessageId(messageId);
+				Vector<Attachment> mediaAttachments = new Vector<Attachment>();
+				for (Attachment attachment: attachments) {
+					if (attachment.getMimeType() != null && attachment.getMimeType().equalsIgnoreCase("text/plain")) {
+						if (text == null) {
+							text = attachment.getContent();
+						} else {
+							text += " "+attachment.getContent();
+						}
+					} else if (attachment.getMimeType() != null && (!attachment.getMimeType().equalsIgnoreCase("application/smil") && attachment.getMobilePath() != null)) {
+						mediaAttachments.add(attachment);
+					}
+				}
+				String contactName = retrieveContactNameByAddress(address);
+				ShortMessage currentMessage = new ShortMessage(address, date, text, isSent, false, contactName, mediaAttachments);
+				smsBoard.addShortMessage(currentMessage);
 
-			case FromBackupConstants.IS_MADRID:
-
-				address = rs.getString("madrid_handle");
-				text = rs.getString("text");
-				date = timeStampToDate(rs.getLong("date"));
-				flags = rs.getInt("madrid_flags");
+			} else if (isMadrid == FromBackupConstants.IS_MADRID) {
+				boolean isSent = true;
+				String address = rs.getString("madrid_handle");
+				String madrid_attachment = rs.getString("madrid_attachmentInfo");
+				String text = rs.getString("text");
+				String timestamp = "1"+rs.getString("date");
+				Date date = timeStampToDate(String.valueOf(Long.parseLong((timestamp)) - (251*24*60*60)));
+				int flags = rs.getInt("madrid_flags");
 				if (flags == 12289) { 
 					isSent = false;
 				}
-				attachments = retrieveMadridAttachments(rs.getString("date"));
-				contactName = retrieveContactNameByPhoneAddress(address);
-				currentMessage = new ShortMessage(address, date, text, isSent, true, contactName, attachments);
-				break;
-
-			default:
-				break;
+				Vector<Attachment> attachments = new Vector<Attachment>();
+				if (madrid_attachment != null) {
+					attachments = retrieveMadridAttachments(timestamp);
+				}
+				String contactName = retrieveContactNameByAddress(address);
+				ShortMessage currentMessage = new ShortMessage(address, date, text, isSent, true, contactName, attachments);
+				smsBoard.addShortMessage(currentMessage);
 			}
-			smsBoard.addShortMessage(currentMessage);
 		}
 		conn.close();
 		return smsBoard;
 	}
 
-	private Vector<Attachment> retrieveMadridAttachments(String date) throws SQLException, ClassNotFoundException {
+	private Vector<Attachment> retrieveMadridAttachments(String timestamp) throws SQLException, ClassNotFoundException {
 		Vector<Attachment> attachments = new Vector<Attachment>();
 		Class.forName("org.sqlite.JDBC");
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+smsDBPath);
@@ -94,7 +95,7 @@ public class QueryFactory {
 		conn.setAutoCommit(true);
 		ResultSet rs = stat.executeQuery("SELECT * " +
 				"FROM madrid_attachment " +
-				"WHERE created_date LIKE '" + date.substring(0, 4) + "%'");
+				"WHERE created_date LIKE '" + timestamp.substring(1, 5) + "%'");
 		while (rs.next()) {
 			String backupDirectory = smsDBPath.substring(0, smsDBPath.lastIndexOf(System.getProperty("file.separator")));
 			String mobilePath = rs.getString("filename");
@@ -135,11 +136,11 @@ public class QueryFactory {
 		return result;
 	}
 
-	public Date timeStampToDate(long timeStampDate) {
-		return new Date(timeStampDate*1000);
+	public Date timeStampToDate(String timestamp) {
+		return new Date(Long.parseLong(timestamp)*1000);
 	}
 
-	public String retrieveContactNameByPhoneAddress(String address) throws Exception {
+	public String retrieveContactNameByAddressLastFourDigits(String address) throws Exception {
 		Class.forName("org.sqlite.JDBC");
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+contactsDBPath);
 		Statement stat = conn.createStatement();
@@ -160,6 +161,30 @@ public class QueryFactory {
 			String last = rs.getString("Last");
 			String middle = rs.getString("Middle");
 			name = makeName(first, middle, last);
+		}
+		conn.close();
+		return name;
+	}
+
+	public String retrieveContactNameByAddress(String address) throws Exception {
+		Class.forName("org.sqlite.JDBC");
+		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+contactsDBPath);
+		Statement stat = conn.createStatement();
+		conn.setAutoCommit(true);
+		ResultSet rs = stat.executeQuery(
+				"SELECT ABMultiValue.value, ABPerson.First, ABPerson.Last, ABPerson.Middle " +
+						"FROM ABMultiValue, ABPerson " +
+						"WHERE ABPerson.ROWID=ABMultiValue.record_id " +
+						"AND ABMultiValue.value = '" + address + "'" );
+		String name = address;
+		if (rs.next()) {
+			String first = rs.getString("First");
+			String last = rs.getString("Last");
+			String middle = rs.getString("Middle");
+			name = makeName(first, middle, last);
+		}
+		if (name.equalsIgnoreCase(address)) {
+			name = retrieveContactNameByAddressLastFourDigits(address); 
 		}
 		conn.close();
 		return name;

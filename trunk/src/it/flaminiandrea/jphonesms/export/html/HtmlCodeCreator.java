@@ -6,16 +6,17 @@ import it.flaminiandrea.jphonesms.domain.SmsBoard;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 public class HtmlCodeCreator {
 	private String lineSeparator = System.getProperties().getProperty("line.separator");
+	private String fileSeparator = System.getProperties().getProperty("file.separator");
 	private File attachmentsDir;
 
 	public HtmlCodeCreator(File attachmentsDir) {
@@ -64,7 +65,7 @@ public class HtmlCodeCreator {
 	private String createDivRightCode(List<ShortMessage> messages) {
 		String result = 
 				"<div id=\"right\">" + lineSeparator +
-				"<h2>Contact: " + messages.get(0).getContactName() + "</h2>";
+				"<h2>Contact: " + toHtml(messages.get(0).getContactName()) + "</h2>";
 		for (ShortMessage sms : messages) {
 			String direction ="rcvd";
 			if(sms.getFlowDescription().equals("Sent to:")) {
@@ -101,46 +102,38 @@ public class HtmlCodeCreator {
 
 	private String createSmsHtmlDescription(ShortMessage sms) {
 		Vector<Attachment> attachments = sms.getAttachments();
-		String attachmentsContent = "";
 
 		String attachmentsHtml = "<br />";
 
 		if (attachments != null && attachments.size() > 0) {
-			int index = 1;
 			for (Attachment attachment : attachments) {
 				String backupFilePath = attachment.getBackupPath();
 				File backupFile = new File(backupFilePath);
 				if (backupFilePath != null && !backupFilePath.equalsIgnoreCase("") && (backupFile.exists())) {
-					if (attachment.getContent() != null && !attachment.getContent().equalsIgnoreCase("")) {
-						attachmentsContent += attachment.getContent();
-					}
 					String mimeType = attachment.getMimeType();
 					String destinationFileName = attachmentsDir.getAbsolutePath()+
 							System.getProperty("file.separator")+
 							attachment.retrieveBackupPathByMobilePath()+
 							"."+mimeType.split("/")[1];
 					copyFile(backupFilePath,destinationFileName);
+					String[] pathArray = attachment.getMobilePath().split(this.fileSeparator);
+					String fileNameWithoutPath = pathArray[pathArray.length-1];
 
 					attachmentsHtml += this.lineSeparator +
-							"<a href=\""+destinationFileName+"\">Attachment "+index+"</a><br />";
-					index++;
+							"<a href=\""+destinationFileName+"\">"+toHtml(fileNameWithoutPath)+"</a><br />";
 				}
 			}
 		}
 
-		String direction = 
-				sms.getFlowDescription() + " " + sms.getContactName() + " (" + sms.getAddress() + ")"
+		String direction = "<br />"+
+				toHtml(sms.getFlowDescription() + " " + sms.getContactName() + " (" + sms.getAddress()) + ")<br /><br />"
 						+ this.lineSeparator 
 						+ this.lineSeparator;
 
 
-		String textContent = sms.getText();
+		String textContent = toHtml(sms.getText());
 
-		if(!attachmentsContent.equalsIgnoreCase("")) {
-			textContent = sms.getText() + " " + attachmentsContent;
-		}
-
-		String result = "Date: " + sms.getFormattedDate() + this.lineSeparator + direction + textContent
+		String result = "Date: " + toHtml(sms.getFormattedDate()) + this.lineSeparator + direction + textContent
 				+ this.lineSeparator + attachmentsHtml;
 
 		return result;
@@ -156,7 +149,7 @@ public class HtmlCodeCreator {
 			String fileName = name.replace(" ", "").replace("'", "").replace("à", "a").toLowerCase();
 			result += 
 					"<li>" + lineSeparator +
-					"<a href=\"" + pathToMessages + fileName + ".html\">" + name + "</a>" + lineSeparator +
+					"<a href=\"" + pathToMessages + fileName + ".html\">" + toHtml(name) + "</a>" + lineSeparator +
 					"</li>" + lineSeparator;
 		}
 		result +=
@@ -197,6 +190,10 @@ public class HtmlCodeCreator {
 	public void setAttachmentsDir(File attachmentsDir) {
 		this.attachmentsDir = attachmentsDir;
 	}
+	
+	private String toHtml(String string) {
+		return StringEscapeUtils.escapeHtml4(string);
+	}
 
 	private void copyFile(String sourceFile, String destinationFile){
 		try{
@@ -211,14 +208,9 @@ public class HtmlCodeCreator {
 			}
 			in.close();
 			out.close();
-			System.out.println("File copied.");
 		}
-		catch(FileNotFoundException ex){
-			System.out.println(ex.getMessage() + " in the specified directory.");
+		catch(Exception ex){
 			System.exit(0);
-		}
-		catch(IOException e){
-			System.out.println(e.getMessage());  
 		}
 	}
 
