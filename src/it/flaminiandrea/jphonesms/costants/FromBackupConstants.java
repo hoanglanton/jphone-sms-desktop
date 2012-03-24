@@ -15,5 +15,9 @@ public class FromBackupConstants {
 	
 	public static final int IS_MADRID = 1;
 	public static final int IS_NOT_MADRID = 0;
+	
+	public static final int DATE_ACCEPTABLE_RANGE_UPPER_BOUND = 5000;
+	public static final int DATE_ACCEPTABLE_RANGE_LOWER_BOUND = 0;
+	
 
 }

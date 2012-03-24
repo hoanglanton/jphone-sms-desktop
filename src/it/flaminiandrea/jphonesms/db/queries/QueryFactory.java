@@ -34,7 +34,13 @@ public class QueryFactory {
 
 		SmsBoard smsBoard = new SmsBoard();
 		while (rs.next()) {
-			int isMadrid = rs.getInt("is_madrid");
+			int isMadrid;
+			try {
+				isMadrid = rs.getInt("is_madrid");
+			} catch (SQLException e) {
+				isMadrid = FromBackupConstants.IS_NOT_MADRID;
+				//TODO LOGGER
+			}
 			if (isMadrid == FromBackupConstants.IS_NOT_MADRID) {
 				boolean isSent = true;
 				int messageId = rs.getInt("ROWID");
@@ -93,9 +99,24 @@ public class QueryFactory {
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+smsDBPath);
 		Statement stat = conn.createStatement();
 		conn.setAutoCommit(true);
-		ResultSet rs = stat.executeQuery("SELECT * " +
-				"FROM madrid_attachment " +
-				"WHERE created_date LIKE '" + timestamp.substring(1, 5) + "%'");
+
+		//		String querySr = "SELECT * " +
+		//				"FROM madrid_attachment " +
+		//				// "WHERE created_date LIKE '" + timestamp.substring(1, 5) + "%'");
+		//				//"WHERE (( " + timestamp.substring(1) + " - created_date) < " + FromBackupConstants.DATE_ACCEPTABLE_RANGE_UPPER_BOUND+") " +
+		//				//"AND (( " + timestamp.substring(1) + " - created_date) > " + FromBackupConstants.DATE_ACCEPTABLE_RANGE_LOWER_BOUND+")";
+		//				"WHERE (( " + timestamp.substring(1) + " - created_date) BETWEEN " + FromBackupConstants.DATE_ACCEPTABLE_RANGE_LOWER_BOUND+" AND "+ FromBackupConstants.DATE_ACCEPTABLE_RANGE_UPPER_BOUND + ")";
+
+		String querySr = "SELECT " +
+				"*, " +
+				"abs(M.date - MA.created_date) AS ABS_DIFF " +
+				"FROM madrid_attachment MA, message M " +
+				"WHERE M.is_madrid = 1 " +
+				"AND M.madrid_attachmentInfo IS NOT NULL " +
+				"AND ABS_DIFF < " + FromBackupConstants.DATE_ACCEPTABLE_RANGE_UPPER_BOUND + " " +
+				"AND M.date = " + timestamp.substring(1);
+
+		ResultSet rs = stat.executeQuery(querySr);
 		while (rs.next()) {
 			String backupDirectory = smsDBPath.substring(0, smsDBPath.lastIndexOf(System.getProperty("file.separator")));
 			String mobilePath = rs.getString("filename");

@@ -27,8 +27,9 @@ public class ExportActionListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String fileSeparator = System.getProperties().getProperty("file.separator");
-		this.chooser.setCurrentDirectory(new java.io.File("."));
+		String fileSeparator = System.getProperty("file.separator");
+		java.io.File currentDir = new java.io.File(System.getProperty("user.home"));
+		this.chooser.setCurrentDirectory(currentDir);
 		this.chooser.setDialogTitle(this.choosertitle);
 		this.chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		this.chooser.setAcceptAllFileFilterUsed(false);
@@ -37,9 +38,9 @@ public class ExportActionListener implements ActionListener {
 		if (choice == null || choice.endsWith(fileSeparator + ".")) {
 			JOptionPane.showMessageDialog(panel, "The directory you have choosen is invalid.", "Warning!", 2);
 		} else {
-			exporter.setPathToDirectory(choice);
-			exporter.setSmsBoard(this.panel.getSmsBoard());
-			exporter.export();
+			this.exporter.setPathToDirectory(choice);
+			this.exporter.setSmsBoard(this.panel.getSmsBoard());
+			this.exporter.export();
 		}
 	}
 	
