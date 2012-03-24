@@ -21,17 +21,17 @@ public class ShortMessagesTable extends JTable {
 		
         TableColumnModel tcm = this.getColumnModel();
         tcm.setColumnMargin(20);
-        TableColumn tc = tcm.getColumn(4);
+        TableColumn tc = tcm.getColumn(5);
         tc.setPreferredWidth(500);
 
-        tc = tcm.getColumn(3);
+        tc = tcm.getColumn(4);
         tc.setPreferredWidth(70);
 
         this.setShowVerticalLines(false);
         SmsTableMouseListener mouseListener = new SmsTableMouseListener(this.mainWindow);
         this.addMouseListener(mouseListener);
         
-        String[] ident = {"Direction","Name","Address","Date","Text"};
+        String[] ident = {"Direction", "iMessage", "Name","Address","Date","Text", "Attachments"};
         for (int i = 0; i < ident.length; i++) {
             TableColumn ColFormato = this.getColumn(ident[i]);
             DefaultTableCellRenderer ColFormatoRenderer = new DefaultTableCellRenderer();
