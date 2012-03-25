@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.Vector;
 
-import it.flaminiandrea.jphonesms.costants.FromBackupConstants;
+import it.flaminiandrea.jphonesms.costants.DatabaseConstants;
 import it.flaminiandrea.jphonesms.domain.Attachment;
 import it.flaminiandrea.jphonesms.domain.ShortMessage;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
@@ -38,10 +38,10 @@ public class QueryFactory {
 			try {
 				isMadrid = rs.getInt("is_madrid");
 			} catch (SQLException e) {
-				isMadrid = FromBackupConstants.IS_NOT_MADRID;
+				isMadrid = DatabaseConstants.IS_NOT_MADRID;
 				//TODO LOGGER
 			}
-			if (isMadrid == FromBackupConstants.IS_NOT_MADRID) {
+			if (isMadrid == DatabaseConstants.IS_NOT_MADRID) {
 				boolean isSent = true;
 				int messageId = rs.getInt("ROWID");
 				String address = rs.getString("address");
@@ -69,11 +69,14 @@ public class QueryFactory {
 				ShortMessage currentMessage = new ShortMessage(address, date, text, isSent, false, contactName, mediaAttachments);
 				smsBoard.addShortMessage(currentMessage);
 
-			} else if (isMadrid == FromBackupConstants.IS_MADRID) {
+			} else if (isMadrid == DatabaseConstants.IS_MADRID) {
 				boolean isSent = true;
 				String address = rs.getString("madrid_handle");
 				String madrid_attachment = rs.getString("madrid_attachmentInfo");
 				String text = rs.getString("text");
+				if (text == null) {
+					text = "";
+				}
 				String timestamp = "1"+rs.getString("date");
 				Date date = timeStampToDate(String.valueOf(Long.parseLong((timestamp)) - (251*24*60*60)));
 				int flags = rs.getInt("madrid_flags");
@@ -82,7 +85,7 @@ public class QueryFactory {
 				}
 				Vector<Attachment> attachments = new Vector<Attachment>();
 				if (madrid_attachment != null) {
-					attachments = retrieveMadridAttachments(timestamp);
+					attachments = retrieveMadridAttachments(timestamp, isSent);
 				}
 				String contactName = retrieveContactNameByAddress(address);
 				ShortMessage currentMessage = new ShortMessage(address, date, text, isSent, true, contactName, attachments);
@@ -93,7 +96,7 @@ public class QueryFactory {
 		return smsBoard;
 	}
 
-	private Vector<Attachment> retrieveMadridAttachments(String timestamp) throws SQLException, ClassNotFoundException {
+	private Vector<Attachment> retrieveMadridAttachments(String timestamp, boolean isSent) throws SQLException, ClassNotFoundException {
 		Vector<Attachment> attachments = new Vector<Attachment>();
 		Class.forName("org.sqlite.JDBC");
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+smsDBPath);
@@ -109,11 +112,12 @@ public class QueryFactory {
 
 		String querySr = "SELECT " +
 				"*, " +
-				"abs(M.date - MA.created_date) AS ABS_DIFF " +
+				"abs(M.date - MA.created_date) AS ABS_DIFF, " +
+				"(M.date - MA.created_date) AS DIFF " +
 				"FROM madrid_attachment MA, message M " +
 				"WHERE M.is_madrid = 1 " +
 				"AND M.madrid_attachmentInfo IS NOT NULL " +
-				"AND ABS_DIFF < " + FromBackupConstants.DATE_ACCEPTABLE_RANGE_UPPER_BOUND + " " +
+				"AND ABS_DIFF < " + DatabaseConstants.DATE_ACCEPTABLE_RANGE_UPPER_BOUND + " " +
 				"AND M.date = " + timestamp.substring(1);
 
 		ResultSet rs = stat.executeQuery(querySr);
@@ -124,7 +128,11 @@ public class QueryFactory {
 			Attachment currentAttachment = new Attachment(mobilePath, backupDirectory);
 			currentAttachment.setMimeType(mimeType);
 			currentAttachment.setContent("");
-			attachments.add(currentAttachment);
+			Long timestampDiff = rs.getLong("DIFF");
+
+			if( (isSent && timestampDiff > 0) || (!isSent && timestampDiff < 0 )) {
+				attachments.add(currentAttachment);
+			}
 		}
 		return attachments;
 	}

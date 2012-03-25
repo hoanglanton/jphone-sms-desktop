@@ -13,11 +13,4 @@ public class FromBackupConstants {
 	public static final String SQLITE3_DB_CONTACTS_FILE_NAME_MDDATA = "31bb7ba8914766d4ba40d6dfb6113c8b614be442.mddata";
 	public static final String SQLITE3_DB_CONTACTS_FILE_NAME_MDBACKUP = "31bb7ba8914766d4ba40d6dfb6113c8b614be442.mdbackup";
 	
-	public static final int IS_MADRID = 1;
-	public static final int IS_NOT_MADRID = 0;
-	
-	public static final int DATE_ACCEPTABLE_RANGE_UPPER_BOUND = 5000;
-	public static final int DATE_ACCEPTABLE_RANGE_LOWER_BOUND = 0;
-	
-
 }
