@@ -50,7 +50,7 @@ public class HtmlExporter implements Exporter {
 		if (!directory.exists()) {
 			directory.mkdirs();
 		}
-		File attachmentsDir = new File(this.pathToDirectory + this.fileSeparator + "attachments" + this.fileSeparator);
+		File attachmentsDir = new File(this.pathToDirectory + this.fileSeparator + "messages" + this.fileSeparator + "attachments" + this.fileSeparator);
 		if (!attachmentsDir.exists()) {
 			attachmentsDir.mkdirs();
 		}
@@ -71,7 +71,7 @@ public class HtmlExporter implements Exporter {
 		if (!directory.exists()) {
 			directory.mkdirs();
 		}
-		File attachmentsDir = new File(this.pathToDirectory + this.fileSeparator + "attachments" + this.fileSeparator);
+		File attachmentsDir = new File(this.pathToDirectory + this.fileSeparator + "messages" + this.fileSeparator + "attachments" + this.fileSeparator);
 		if (!attachmentsDir.exists()) {
 			attachmentsDir.mkdirs();
 		}

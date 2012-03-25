@@ -115,18 +115,22 @@ public class HtmlCodeCreator {
 							System.getProperty("file.separator")+
 							attachment.retrieveBackupPathByMobilePath()+
 							"."+mimeType.split("/")[1];
+					String attachmentLink = attachmentsDir.getName()+
+							System.getProperty("file.separator")+
+							attachment.retrieveBackupPathByMobilePath()+
+							"."+mimeType.split("/")[1];
 					copyFile(backupFilePath,destinationFileName);
 					String[] pathArray = attachment.getMobilePath().split(this.fileSeparator);
 					String fileNameWithoutPath = pathArray[pathArray.length-1];
 
 					if (attachment.getMimeType().startsWith("image")) {
 						attachmentsHtml += this.lineSeparator +
-								"<a href=\""+destinationFileName+"\">"+
-								"<img class=\"attachment_img\" src=\""+destinationFileName+"\" alt=\""+ toHtml(fileNameWithoutPath) + "\" style=\"width: 280px;\">"+
+								"<a href=\""+attachmentLink+"\">"+
+								"<img class=\"attachment_img\" src=\""+attachmentLink+"\" alt=\""+ toHtml(fileNameWithoutPath) + "\" style=\"width: 280px;\">"+
 								"</a><br />";
 					} else {
 						attachmentsHtml += this.lineSeparator +
-								"<a href=\""+destinationFileName+"\">"+ toHtml(fileNameWithoutPath) +
+								"<a href=\""+attachmentLink+"\">"+ toHtml(fileNameWithoutPath) +
 								"</a><br />";
 					}
 				}
@@ -137,7 +141,6 @@ public class HtmlCodeCreator {
 				toHtml(sms.getFlowDescription() + " " + sms.getContactName() + " (" + sms.getAddress()) + ")<br /><br />"
 				+ this.lineSeparator 
 				+ this.lineSeparator;
-
 
 		String textContent = toHtml(sms.getText());
 
