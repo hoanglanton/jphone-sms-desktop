@@ -4,13 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
+
+import org.apache.log4j.Logger;
 
 import it.flaminiandrea.jphonesms.domain.Attachment;
 import it.flaminiandrea.jphonesms.domain.ShortMessage;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 
 public class ShortMessagesTableModel extends AbstractTableModel {
+	
+	private Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
+	
 	private static final long serialVersionUID = 5592285361462851066L;
 	private SmsBoard smsBoard;
 	private static final int DIRECTION = 0;
@@ -50,6 +57,8 @@ public class ShortMessagesTableModel extends AbstractTableModel {
 		try {
 			return this.smsBoard.getEntriesByNameAndByReverseDate().size();
 		} catch (java.lang.NullPointerException e) {
+			this.logger.error("Error counting rows.", e);
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Error!", 0);
 			return 0;
 		}
 	}

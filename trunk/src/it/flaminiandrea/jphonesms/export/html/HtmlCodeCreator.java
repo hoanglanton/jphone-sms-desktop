@@ -3,6 +3,7 @@ package it.flaminiandrea.jphonesms.export.html;
 import it.flaminiandrea.jphonesms.domain.Attachment;
 import it.flaminiandrea.jphonesms.domain.ShortMessage;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,9 +13,15 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 public class HtmlCodeCreator {
+	
+	private Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
+	
 	private String lineSeparator = System.getProperties().getProperty("line.separator");
 	private String fileSeparator = System.getProperties().getProperty("file.separator");
 	private File attachmentsDir;
@@ -221,6 +228,8 @@ public class HtmlCodeCreator {
 			out.close();
 		}
 		catch(Exception ex){
+			this.logger.error("Error in copying files.", ex);
+			JOptionPane.showMessageDialog(null, ex.getMessage(), "Error!", 0);
 			System.exit(0);
 		}
 	}
