@@ -2,16 +2,31 @@ package it.flaminiandrea.jphonesms.exec;
 
 import it.flaminiandrea.jphonesms.costants.ProjectCostants;
 import it.flaminiandrea.jphonesms.gui.MainWindow;
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.WindowConstants;
+
+import org.apache.log4j.Logger;
 
 public class Launcher {
 
 	public static void main(String[] args) {
+		try {
+			start();
+		} catch (Exception e) {
+			Logger logger = RuntimeLogger.getInstance().getLogger(Launcher.class);
+			logger.error("Error starting application.", e);
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Error!", 0);
+			System.exit(0);
+		}
+	}
+
+	private static void start() {
 		JFrame frame = new JFrame();
 		final MainWindow ex = new MainWindow();
 		frame.getContentPane().add(ex);
@@ -26,7 +41,6 @@ public class Launcher {
 
 		frame.setVisible(true);
 		frame.setResizable(true);
-
 	}
 
 }
