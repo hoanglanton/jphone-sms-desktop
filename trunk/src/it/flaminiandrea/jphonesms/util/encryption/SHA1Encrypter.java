@@ -20,7 +20,7 @@ public class SHA1Encrypter {
 			return convertToHex(sha1hash);
 		} catch (Exception e) {
 			Logger logger = RuntimeLogger.getInstance().getLogger(SHA1Encrypter.class);
-			logger.error("Error in the encrypting function.", e);
+			logger.error("Error in the encryption function.", e);
 			JOptionPane.showMessageDialog(null, e.getMessage(), "Error!", 0);
 		}
 		return null;
