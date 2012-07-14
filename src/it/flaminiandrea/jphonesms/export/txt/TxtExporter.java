@@ -8,11 +8,17 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
+
 import it.flaminiandrea.jphonesms.domain.ShortMessage;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
 import it.flaminiandrea.jphonesms.export.Exporter;
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 
 public class TxtExporter implements Exporter {
+	
+	private Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
+	
 	private SmsBoard smsBoard;
 	private String pathToDirectory;
 	private String fileSeparator = System.getProperties().getProperty("file.separator");
@@ -32,6 +38,7 @@ public class TxtExporter implements Exporter {
 			JOptionPane.showMessageDialog(null, mess, "Info", JOptionPane.INFORMATION_MESSAGE, null);
 			return true;
 		} catch (Exception e) {
+			this.logger.error("Error exporting in TXT format.", e);
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE, null);
 			return false;

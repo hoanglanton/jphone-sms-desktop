@@ -9,10 +9,13 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.Vector;
 
+import org.apache.log4j.Logger;
+
 import it.flaminiandrea.jphonesms.costants.DatabaseConstants;
 import it.flaminiandrea.jphonesms.domain.Attachment;
 import it.flaminiandrea.jphonesms.domain.ShortMessage;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 
 
 public class QueryFactory {
@@ -20,6 +23,8 @@ public class QueryFactory {
 	private static final String LABEL_ADDRESS_NULL = "NO ADDRESS";
 	private static final String LABEL_CONTACTNAME_NULL = "NO CONTACT NAME";
 	private static final String LABEL_UNKOWN_NAME = "UNKNOWN";
+
+	private Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
 
 	private String smsDBPath, contactsDBPath;
 
@@ -38,16 +43,16 @@ public class QueryFactory {
 
 		SmsBoard smsBoard = new SmsBoard();
 		while (rs.next()) {
+			int messageId = rs.getInt("ROWID");
 			int isMadrid;
 			try {
 				isMadrid = rs.getInt("is_madrid");
 			} catch (SQLException e) {
 				isMadrid = DatabaseConstants.IS_NOT_MADRID;
-				//TODO LOGGER
+				logger.info("The #"+rs.getInt("ROWID")+" message is not an iMessage.");
 			}
 			if (isMadrid == DatabaseConstants.IS_NOT_MADRID) {
 				boolean isSent = true;
-				int messageId = rs.getInt("ROWID");
 				String address = rs.getString("address");
 				String text = rs.getString("text");
 				String timestamp = rs.getString("date");
@@ -69,7 +74,7 @@ public class QueryFactory {
 						mediaAttachments.add(attachment);
 					}
 				}
-				createShortMessage(smsBoard, isSent, address, text, date, mediaAttachments);
+				createShortMessage(messageId, smsBoard, isSent, address, text, date, mediaAttachments);
 			} else if (isMadrid == DatabaseConstants.IS_MADRID) {
 				boolean isSent = true;
 				String address = rs.getString("madrid_handle");
@@ -88,14 +93,14 @@ public class QueryFactory {
 				if (madrid_attachment != null) {
 					attachments = retrieveMadridAttachments(timestamp, isSent);
 				}
-				createShortMessage(smsBoard, isSent, address, text, date, attachments);
+				createShortMessage(messageId, smsBoard, isSent, address, text, date, attachments);
 			}
 		}
 		conn.close();
 		return smsBoard;
 	}
 
-	private void createShortMessage(SmsBoard smsBoard, boolean isSent,
+	private void createShortMessage(int messageId, SmsBoard smsBoard, boolean isSent,
 			String address, String text, Date date,
 			Vector<Attachment> attachments) throws Exception {
 		String contactName = LABEL_CONTACTNAME_NULL;
@@ -109,6 +114,8 @@ public class QueryFactory {
 					date, text, isSent, false, contactName,
 					attachments);
 			smsBoard.addShortMessage(currentMessage);
+		} else {
+			logger.warn("The #" + messageId +" message was not included. (Text null OR No attachments)");
 		}
 	}
 
@@ -154,7 +161,7 @@ public class QueryFactory {
 	}
 
 	private Vector<Attachment> retrieveAttachmentsByMessageId(int messageId) throws ClassNotFoundException, SQLException {
-		// TODO Auto-generated method stub
+		// TODO Trovare un modo per recuperare gli attachment degli MMS
 		Vector<Attachment> attachments = new Vector<Attachment>();
 		Class.forName("org.sqlite.JDBC");
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+smsDBPath);
@@ -177,7 +184,7 @@ public class QueryFactory {
 	}
 
 	private String retrieveMobilePathFromContentLoc(String contentLoc) {
-		// TODO Auto-generated method stub
+		// TODO Trovare un modo per recuperare gli attachment degli MMS
 		String result = "/var/mobile/asdjhkakjhhdakhsjakhdj";
 		return result;
 	}

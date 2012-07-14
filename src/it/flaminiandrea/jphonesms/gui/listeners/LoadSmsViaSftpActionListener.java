@@ -4,6 +4,7 @@ import it.flaminiandrea.jphonesms.db.queries.QueryFactory;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
 import it.flaminiandrea.jphonesms.gui.MainWindow;
 import it.flaminiandrea.jphonesms.gui.ShortMessagesTable;
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 import it.flaminiandrea.jphonesms.sftp.ClientSFTP;
 
 import java.awt.event.ActionEvent;
@@ -14,7 +15,12 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import org.apache.log4j.Logger;
+
 public class LoadSmsViaSftpActionListener implements ActionListener {
+
+	private static String LOAD_FROM_SFTP_LOGGER_MESSAGE_DEFAULT = "Error loading messages from SFTP connection.";
+	private Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
 
 	private JTextField userField, passwordField, ipAddressField;
 	private JButton exportToTXT, exportToHTML;
@@ -33,6 +39,15 @@ public class LoadSmsViaSftpActionListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		try {
+			loadSmsFromSFTP();
+		} catch (Exception e2) {
+			this.logger.error(LOAD_FROM_SFTP_LOGGER_MESSAGE_DEFAULT, e2);
+			JOptionPane.showMessageDialog(mainFrame, e2.getMessage(), "Error!", 0);
+		}
+	}
+
+	private void loadSmsFromSFTP() throws Exception {
 		String fileSeparator = System.getProperties().getProperty("file.separator");
 		String pathToDirectory = System.getProperties().getProperty("user.dir")+fileSeparator+"databases"+fileSeparator;
 		java.io.File cartellaDati = new java.io.File(pathToDirectory);
@@ -48,22 +63,16 @@ public class LoadSmsViaSftpActionListener implements ActionListener {
 			ClientSFTP client = new ClientSFTP();
 			File smsDB;
 			File addressBook;
-			try {
-				smsDB = client.getFile(user, password, ipAddress, "/var/mobile/Library/SMS/sms.db", pathToDirectory);
-				addressBook = client.getFile(user, password, ipAddress, "/var/mobile/Library/AddressBook/AddressBook.sqlitedb", pathToDirectory);
-				QueryFactory qFactory = new QueryFactory(smsDB.getAbsolutePath(), addressBook.getAbsolutePath());
-				SmsBoard smsBoard = qFactory.retrieveSmsBoard();
-				this.smsTable.getShortMessagesTableModel().setSmsBoard(smsBoard);
-				this.smsTable.resizeAndRepaintMe();
-				this.mainFrame.setSmsBoard(smsBoard);
-				this.exportToTXT.setEnabled(true);
-				this.exportToHTML.setEnabled(true);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				JOptionPane.showMessageDialog(mainFrame, e1.getMessage(), "Error!", 0);
-			}
+			smsDB = client.getFile(user, password, ipAddress, "/var/mobile/Library/SMS/sms.db", pathToDirectory);
+			addressBook = client.getFile(user, password, ipAddress, "/var/mobile/Library/AddressBook/AddressBook.sqlitedb", pathToDirectory);
+			QueryFactory qFactory = new QueryFactory(smsDB.getAbsolutePath(), addressBook.getAbsolutePath());
+			SmsBoard smsBoard = qFactory.retrieveSmsBoard();
+			this.smsTable.getShortMessagesTableModel().setSmsBoard(smsBoard);
+			this.smsTable.resizeAndRepaintMe();
+			this.mainFrame.setSmsBoard(smsBoard);
+			this.exportToTXT.setEnabled(true);
+			this.exportToHTML.setEnabled(true);
 		}
-
 	}
 
 }

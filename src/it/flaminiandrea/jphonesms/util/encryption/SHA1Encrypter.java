@@ -1,6 +1,12 @@
 package it.flaminiandrea.jphonesms.util.encryption;
 
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
+
 import java.security.MessageDigest;
+
+import javax.swing.JOptionPane;
+
+import org.apache.log4j.Logger;
 
 public class SHA1Encrypter {
 
@@ -13,7 +19,9 @@ public class SHA1Encrypter {
 			sha1hash = md.digest();
 			return convertToHex(sha1hash);
 		} catch (Exception e) {
-			// TODO: handle exception
+			Logger logger = RuntimeLogger.getInstance().getLogger(SHA1Encrypter.class);
+			logger.error("Error in the encrypting function.", e);
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Error!", 0);
 		}
 		return null;
 	}

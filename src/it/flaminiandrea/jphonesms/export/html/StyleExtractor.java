@@ -1,13 +1,19 @@
 package it.flaminiandrea.jphonesms.export.html;
 
+import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public class StyleExtractor {
+import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
+
+public class StyleExtractor {
+	
 	public static boolean unzip(String fileUri, String pathWhereToExtract) {
 		try {
 			byte[] buf = new byte[1024];
@@ -38,9 +44,10 @@ public class StyleExtractor {
 			zinstream.close();
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger logger = RuntimeLogger.getInstance().getLogger(StyleExtractor.class);
+			logger.error("Error in extracting the HTML style.", e);
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Error!", 0);
 			return false;
 		}
 	}
-
 }
