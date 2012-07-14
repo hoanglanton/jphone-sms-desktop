@@ -17,6 +17,9 @@ import it.flaminiandrea.jphonesms.domain.SmsBoard;
 
 public class QueryFactory {
 
+	private static final String LABEL_ADDRESS_NULL = "NO ADDRESS";
+	private static final String LABEL_CONTACTNAME_NULL = "NO CONTACT NAME";
+
 	private String smsDBPath, contactsDBPath;
 
 	public QueryFactory(String smsDBPath, String contactsDBPath) {
@@ -65,10 +68,7 @@ public class QueryFactory {
 						mediaAttachments.add(attachment);
 					}
 				}
-				String contactName = retrieveContactNameByAddress(address);
-				ShortMessage currentMessage = new ShortMessage(address, date, text, isSent, false, contactName, mediaAttachments);
-				smsBoard.addShortMessage(currentMessage);
-
+				createShortMessage(smsBoard, isSent, address, text, date, mediaAttachments);
 			} else if (isMadrid == DatabaseConstants.IS_MADRID) {
 				boolean isSent = true;
 				String address = rs.getString("madrid_handle");
@@ -87,13 +87,28 @@ public class QueryFactory {
 				if (madrid_attachment != null) {
 					attachments = retrieveMadridAttachments(timestamp, isSent);
 				}
-				String contactName = retrieveContactNameByAddress(address);
-				ShortMessage currentMessage = new ShortMessage(address, date, text, isSent, true, contactName, attachments);
-				smsBoard.addShortMessage(currentMessage);
+				createShortMessage(smsBoard, isSent, address, text, date, attachments);
 			}
 		}
 		conn.close();
 		return smsBoard;
+	}
+
+	private void createShortMessage(SmsBoard smsBoard, boolean isSent,
+			String address, String text, Date date,
+			Vector<Attachment> attachments) throws Exception {
+		String contactName = LABEL_CONTACTNAME_NULL;
+		if (address != null) {
+			contactName = retrieveContactNameByAddress(address);
+		} else {
+			address = LABEL_ADDRESS_NULL;
+		}
+		if(text != null || attachments.size() > 0) {
+			ShortMessage currentMessage = new ShortMessage(address,
+					date, text, isSent, false, contactName,
+					attachments);
+			smsBoard.addShortMessage(currentMessage);
+		}
 	}
 
 	private Vector<Attachment> retrieveMadridAttachments(String timestamp, boolean isSent) throws SQLException, ClassNotFoundException {
@@ -144,9 +159,10 @@ public class QueryFactory {
 		Connection conn = DriverManager.getConnection("jdbc:sqlite:"+smsDBPath);
 		Statement stat = conn.createStatement();
 		conn.setAutoCommit(true);
-		ResultSet rs = stat.executeQuery("SELECT * " +
-				"FROM msg_pieces " +
-				"WHERE message_id = " + messageId);
+		ResultSet rs = stat.executeQuery("SELECT M.group_id, MP.* " +
+				"FROM msg_pieces MP, message M " +
+				"WHERE MP.message_id = M.ROWID " +
+				"AND MP.message_id = " + messageId);
 		while (rs.next()) {
 			String backupDirectory = smsDBPath.substring(0, smsDBPath.lastIndexOf(System.getProperty("file.separator")));
 			String mobilePath = retrieveMobilePathFromContentLoc(rs.getString("content_loc"));
