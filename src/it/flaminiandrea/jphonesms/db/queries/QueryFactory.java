@@ -19,6 +19,7 @@ public class QueryFactory {
 
 	private static final String LABEL_ADDRESS_NULL = "NO ADDRESS";
 	private static final String LABEL_CONTACTNAME_NULL = "NO CONTACT NAME";
+	private static final String LABEL_UNKOWN_NAME = "UNKNOWN";
 
 	private String smsDBPath, contactsDBPath;
 
@@ -247,7 +248,7 @@ public class QueryFactory {
 			result+=" "+last;
 		}
 		if (result.equals("")) {
-			return "Unknown";
+			return LABEL_UNKOWN_NAME;
 		} else {
 			return result;
 		}
