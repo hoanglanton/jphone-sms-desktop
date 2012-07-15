@@ -4,19 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
-import org.apache.log4j.Logger;
 
 import it.flaminiandrea.jphonesms.domain.Attachment;
 import it.flaminiandrea.jphonesms.domain.ShortMessage;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
-import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 
 public class ShortMessagesTableModel extends AbstractTableModel {
 	
-	private static final long serialVersionUID = 5592285361462851066L;
+	private static final long serialVersionUID = 1L;
+	
 	private SmsBoard smsBoard;
 	private static final int DIRECTION = 0;
 	private static final int IMESSAGE = 1;
