@@ -22,9 +22,9 @@ import org.apache.log4j.Logger;
 
 public class LoadSmsFromBackupActionListener implements ActionListener {
 
-	public static String LOADING_MESSAGE = "Loading Messages from Backup Directory... Please Wait.";
-	private static String LOAD_FROM_BACKUP_LOGGER_MESSAGE_DEFAULT = "Error loading messages from backup.";
-	private Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
+	public static final String LOADING_MESSAGE_BACKUP = "Loading Messages from Backup Directory... Please Wait.";
+	private static final String LOAD_FROM_BACKUP_LOGGER_MESSAGE_DEFAULT = "Error loading messages from backup.";
+	private final Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
 
 	private String fileSeparator = System.getProperties().getProperty("file.separator");
 	private JFileChooser chooser;
@@ -52,7 +52,7 @@ public class LoadSmsFromBackupActionListener implements ActionListener {
 
 	private void loadFromBackup() throws Exception {
 		final JFrame frame = new JFrame();
-		chooser = new FileChooser(this.mainFrame, frame, LOADING_MESSAGE);
+		chooser = new FileChooser(this.mainFrame, frame, LOADING_MESSAGE_BACKUP);
 		chooser.setDialogTitle("Choose iPhone Backup Directory.");
 		this.chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		this.chooser.setCurrentDirectory(getSystemBackupDirectory());
@@ -76,7 +76,8 @@ public class LoadSmsFromBackupActionListener implements ActionListener {
 						exportToTXT.setEnabled(true);
 						exportToHTML.setEnabled(true);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error(LOAD_FROM_BACKUP_LOGGER_MESSAGE_DEFAULT, e);
+						JOptionPane.showMessageDialog(null, e.getMessage(), "Error!", 0);
 					}
 				}
 			});
