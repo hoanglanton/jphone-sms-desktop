@@ -1,5 +1,6 @@
 package it.flaminiandrea.jphonesms.gui.listeners;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -7,26 +8,29 @@ import java.io.File;
 import it.flaminiandrea.jphonesms.costants.FromBackupConstants;
 import it.flaminiandrea.jphonesms.db.queries.QueryFactory;
 import it.flaminiandrea.jphonesms.domain.SmsBoard;
+import it.flaminiandrea.jphonesms.gui.FileChooser;
 import it.flaminiandrea.jphonesms.gui.MainWindow;
 import it.flaminiandrea.jphonesms.gui.ShortMessagesTable;
 import it.flaminiandrea.jphonesms.logger.RuntimeLogger;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
 public class LoadSmsFromBackupActionListener implements ActionListener {
 
+	public static String LOADING_MESSAGE = "Loading Messages from Backup Directory... Please Wait.";
 	private static String LOAD_FROM_BACKUP_LOGGER_MESSAGE_DEFAULT = "Error loading messages from backup.";
 	private Logger logger = RuntimeLogger.getInstance().getLogger(this.getClass());
 
 	private String fileSeparator = System.getProperties().getProperty("file.separator");
 	private JFileChooser chooser;
-	private JButton exportToTXT, exportToHTML;
-	private MainWindow mainFrame;
-	private ShortMessagesTable smsTable;
+	private final JButton exportToTXT, exportToHTML;
+	private final MainWindow mainFrame;
+	private final ShortMessagesTable smsTable;
 	private int isChoosed;
 
 	public LoadSmsFromBackupActionListener(MainWindow mainFrame, ShortMessagesTable smsTable, JButton toTxt, JButton toHtml) {
@@ -47,25 +51,35 @@ public class LoadSmsFromBackupActionListener implements ActionListener {
 	}
 
 	private void loadFromBackup() throws Exception {
-		chooser = new JFileChooser();
+		final JFrame frame = new JFrame();
+		chooser = new FileChooser(this.mainFrame, frame, LOADING_MESSAGE);
 		chooser.setDialogTitle("Choose iPhone Backup Directory.");
 		this.chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		this.chooser.setCurrentDirectory(getSystemBackupDirectory());
 		this.chooser.setAcceptAllFileFilterUsed(false);
 		this.isChoosed = this.chooser.showOpenDialog(mainFrame);
-		String choice = getChoose();
-		if (choice == null || choice.endsWith(fileSeparator + ".")) {
-			JOptionPane.showMessageDialog(mainFrame, "The directory you have choosen is invalid.", "Warning!", 2);
-		} else {
-			File smsDB = retrieveSmsDbBackupFileName(choice);
-			File addressBook = retrieveContactsDbBackupFileName(choice);
-			QueryFactory qFactory = new QueryFactory(smsDB.getAbsolutePath(), addressBook.getAbsolutePath());
-			SmsBoard smsBoard = qFactory.retrieveSmsBoard();
-			this.smsTable.getShortMessagesTableModel().setSmsBoard(smsBoard);
-			this.smsTable.resizeAndRepaintMe();
-			this.mainFrame.setSmsBoard(smsBoard);
-			this.exportToTXT.setEnabled(true);
-			this.exportToHTML.setEnabled(true);
+		final String choice = getChoose();
+		if (!(choice == null || choice.endsWith(fileSeparator + "."))) {
+			EventQueue.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					File smsDB = retrieveSmsDbBackupFileName(choice);
+					File addressBook = retrieveContactsDbBackupFileName(choice);
+					QueryFactory qFactory = new QueryFactory(smsDB.getAbsolutePath(), addressBook.getAbsolutePath());
+					SmsBoard smsBoard;
+					try {
+						smsBoard = qFactory.retrieveSmsBoard();
+						frame.dispose();
+						smsTable.getShortMessagesTableModel().setSmsBoard(smsBoard);
+						smsTable.resizeAndRepaintMe();
+						mainFrame.setSmsBoard(smsBoard);
+						exportToTXT.setEnabled(true);
+						exportToHTML.setEnabled(true);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
 	}
 
