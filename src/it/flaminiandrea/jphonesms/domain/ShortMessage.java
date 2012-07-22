@@ -36,6 +36,7 @@ public class ShortMessage {
 	public String toString() {
 		String lineSeparator = System.getProperties().getProperty("line.separator");
 		String direction;
+		if (text == null) text = "";
 		char[] charArray = text.toCharArray();
 		int counter = 40;
 		int tempCounter = 0;

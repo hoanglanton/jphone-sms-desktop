@@ -12,11 +12,17 @@ import javax.swing.JPanel;
 public class GenericProcessWaiter extends JPanel implements Runnable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private String waitingMessage;
 	public static final String WAITING_TITLE = "Wait";
-	
+
 	private JFrame frame;
+
+	public GenericProcessWaiter(String waitingMessage) {
+		this.frame = new JFrame();
+		this.frame.setTitle(WAITING_TITLE);
+		this.waitingMessage = waitingMessage;
+	}
 
 	public GenericProcessWaiter(JFrame frame, String waitingMessage) {
 		this.frame = frame;
@@ -46,4 +52,7 @@ public class GenericProcessWaiter extends JPanel implements Runnable {
 		this.frame.setVisible(true);
 	}
 
+	public void disposeFrame() {
+		this.frame.dispose();
+	}
 }
