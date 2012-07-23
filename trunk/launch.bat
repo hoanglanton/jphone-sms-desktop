@@ -1,2 +1,2 @@
 @echo off 
-START javaw -classpath ".;JPhoneSMSDesktopv101.jar" it.flaminiandrea.jphonesms.gui.MainWindow
+START javaw -classpath ".;jPhoneSMSDesktop-1.1.jar" it.flaminiandrea.jphonesms.exec.Launcher
